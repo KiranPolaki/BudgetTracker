@@ -109,7 +109,7 @@ export default function Budget() {
     } else {
       await dispatch(
         createBudget({
-          category: selectedCategory.id,
+          category: selectedCategory,
           amount,
           month: currentMonth,
         })

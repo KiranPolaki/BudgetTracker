@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../store/authSlice";
+import type { AppDispatch } from "../store";
 import { useNavigation } from "../context/NavigationContext";
 import { useState, useEffect } from "react";
 import PageSkeleton from "./PageSkeleton";
@@ -8,7 +9,7 @@ import PageSkeleton from "./PageSkeleton";
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { prefetchRoute } = useNavigation();
   const [isNavigating, setIsNavigating] = useState(false);
 

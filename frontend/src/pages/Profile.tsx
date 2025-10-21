@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { useAppSelector, useAppDispatch } from "../store";
+import { useAppSelector } from "../store";
 
 export default function Profile() {
-  const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const [isEditing, setIsEditing] = useState(false);
   const [password, setPassword] = useState("");
@@ -25,7 +24,7 @@ export default function Profile() {
       setPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    } catch (err) {
+    } catch {
       setError("Failed to update password");
     }
   };

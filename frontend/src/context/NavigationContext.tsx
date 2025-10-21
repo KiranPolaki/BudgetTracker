@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { fetchCategories } from "../store/categorySlice";
 import { fetchTransactions } from "../store/transactionSlice";
 import { fetchBudgets } from "../store/budgetSlice";
+import type { AppDispatch } from "../store";
 
 interface NavigationContextType {
   prefetchRoute: (route: string) => Promise<void>;
@@ -15,7 +16,7 @@ export function NavigationProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const prefetchRoute = useCallback(
     async (route: string) => {
