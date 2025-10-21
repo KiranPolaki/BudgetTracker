@@ -1,0 +1,199 @@
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../store";
+import type { RootState } from "../store";
+import {
+  createTransaction,
+  updateTransaction,
+} from "../store/transactionSlice";
+import type { Transaction, Category } from "../types";
+
+interface TransactionFormProps {
+  transaction?: Transaction;
+  onComplete: () => void;
+  onCancel: () => void;
+}
+
+export default function TransactionForm({
+  transaction,
+  onComplete,
+  onCancel,
+}: TransactionFormProps) {
+  const dispatch = useAppDispatch();
+  const categories = useSelector((state: RootState) => state.categories.items);
+
+  const [formData, setFormData] = useState({
+    amount: transaction?.amount.toString() || "",
+    description: transaction?.description || "",
+    date: transaction?.date || new Date().toISOString().split("T")[0],
+    categoryId: transaction?.category.id.toString() || "",
+    type: transaction?.type || "EXPENSE",
+  });
+
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    const selectedCategory = categories.find(
+      (cat: Category) => cat.id === parseInt(formData.categoryId)
+    );
+    if (!selectedCategory) {
+      setError("Please select a valid category");
+      return;
+    }
+
+    const transactionData = {
+      amount: parseFloat(formData.amount),
+      description: formData.description,
+      date: formData.date,
+      type: formData.type,
+    };
+
+    try {
+      if (transaction) {
+        await dispatch(
+          updateTransaction({
+            id: transaction.id,
+            data: {
+              ...transactionData,
+              category: selectedCategory,
+            },
+          })
+        );
+      } else {
+        await dispatch(
+          createTransaction({
+            ...transactionData,
+            category: selectedCategory,
+          })
+        );
+      }
+      onComplete();
+    } catch (_err) {
+      setError("Failed to save transaction");
+    }
+  };
+
+  const filteredCategories = categories.filter(
+    (cat: Category) => cat.type === formData.type
+  );
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="bg-red-50 text-red-700 p-3 rounded">{error}</div>
+      )}
+
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Type
+          </label>
+          <select
+            value={formData.type}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                type: e.target.value as "INCOME" | "EXPENSE",
+                categoryId: "", // Reset category when type changes
+              }))
+            }
+            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="EXPENSE">Expense</option>
+            <option value="INCOME">Income</option>
+          </select>
+        </div>
+
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Amount
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            required
+            value={formData.amount}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, amount: e.target.value }))
+            }
+            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            placeholder="0.00"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Description
+        </label>
+        <input
+          type="text"
+          required
+          value={formData.description}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, description: e.target.value }))
+          }
+          className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          placeholder="Enter description"
+        />
+      </div>
+
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Category
+          </label>
+          <select
+            required
+            value={formData.categoryId}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, categoryId: e.target.value }))
+            }
+            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="">Select a category</option>
+            {filteredCategories.map((category: Category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Date
+          </label>
+          <input
+            type="date"
+            required
+            value={formData.date}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, date: e.target.value }))
+            }
+            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end space-x-3 pt-4">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          {transaction ? "Update" : "Add"} Transaction
+        </button>
+      </div>
+    </form>
+  );
+}
