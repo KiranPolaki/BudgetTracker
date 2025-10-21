@@ -128,7 +128,7 @@ export default function BarChart({
       .enter()
       .append("rect")
       .attr("x", 0)
-      .attr("y", (d, i) => i * 20)
+      .attr("y", (_d, i) => i * 20)
       .attr("width", 12)
       .attr("height", 12)
       .attr("fill", (d) => d.color);
@@ -139,7 +139,7 @@ export default function BarChart({
       .enter()
       .append("text")
       .attr("x", 20)
-      .attr("y", (d, i) => i * 20 + 10)
+      .attr("y", (_d, i) => i * 20 + 10)
       .attr("class", "text-sm fill-gray-700")
       .text((d) => d.label);
   }, [data, width, height, margin]);

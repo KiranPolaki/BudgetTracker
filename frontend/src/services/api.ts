@@ -1,5 +1,11 @@
 import axios from "axios";
 import type { Transaction, Category, Budget, RegisterData } from "../types";
+import type { AxiosResponse } from "axios";
+
+interface CustomError extends Error {
+  response?: AxiosResponse;
+  request?: unknown;
+}
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -46,7 +52,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${access}`;
 
         return api(originalRequest);
-      } catch (refreshError) {
+      } catch {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         window.dispatchEvent(new CustomEvent("auth:logout"));
@@ -82,10 +88,10 @@ api.interceptors.response.use(
       errorMessage = error.message;
     }
 
-    const enhancedError = new Error(errorMessage);
-    enhancedError.response = error.response;
-    enhancedError.request = error.request;
-    return Promise.reject(enhancedError);
+    const customError = new Error(errorMessage) as CustomError;
+    customError.response = error.response;
+    customError.request = error.request;
+    return Promise.reject(customError);
   }
 );
 
