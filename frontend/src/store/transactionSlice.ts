@@ -8,6 +8,8 @@ interface TransactionState {
   error: string | null;
   totalPages: number;
   currentPage: number;
+  isSubmitting: boolean;
+  submitError: string | null;
 }
 
 const initialState: TransactionState = {
@@ -16,6 +18,8 @@ const initialState: TransactionState = {
   error: null,
   totalPages: 1,
   currentPage: 1,
+  isSubmitting: false,
+  submitError: null,
 };
 
 export const fetchTransactions = createAsyncThunk(
@@ -79,10 +83,25 @@ const transactionSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || "Failed to fetch transactions";
       })
+      .addCase(createTransaction.pending, (state) => {
+        state.isSubmitting = true;
+        state.submitError = null;
+      })
       .addCase(createTransaction.fulfilled, (state, action) => {
+        state.isSubmitting = false;
         state.items.unshift(action.payload);
       })
+      .addCase(createTransaction.rejected, (state, action) => {
+        state.isSubmitting = false;
+        state.submitError =
+          action.error.message || "Failed to create transaction";
+      })
+      .addCase(updateTransaction.pending, (state) => {
+        state.isSubmitting = true;
+        state.submitError = null;
+      })
       .addCase(updateTransaction.fulfilled, (state, action) => {
+        state.isSubmitting = false;
         const index = state.items.findIndex(
           (item) => item.id === action.payload.id
         );
@@ -90,8 +109,23 @@ const transactionSlice = createSlice({
           state.items[index] = action.payload;
         }
       })
+      .addCase(updateTransaction.rejected, (state, action) => {
+        state.isSubmitting = false;
+        state.submitError =
+          action.error.message || "Failed to update transaction";
+      })
+      .addCase(deleteTransaction.pending, (state) => {
+        state.isSubmitting = true;
+        state.submitError = null;
+      })
       .addCase(deleteTransaction.fulfilled, (state, action) => {
+        state.isSubmitting = false;
         state.items = state.items.filter((item) => item.id !== action.payload);
+      })
+      .addCase(deleteTransaction.rejected, (state, action) => {
+        state.isSubmitting = false;
+        state.submitError =
+          action.error.message || "Failed to delete transaction";
       });
   },
 });

@@ -1,16 +1,16 @@
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "../store";
+import type { RootState, AppDispatch } from "../store";
 import { fetchBudgets, createBudget, updateBudget } from "../store/budgetSlice";
 import { fetchCategories } from "../store/categorySlice";
 import { fetchTransactions } from "../store/transactionSlice";
-import type { Category } from "../types";
+import type { Category, Budget, Transaction } from "../types";
 import DonutChart from "../components/charts/DonutChart";
 import BarChart from "../components/charts/BarChart";
 import Modal from "../components/Modal";
 
 export default function Budget() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const budgets = useSelector((state: RootState) => state.budgets.items);
   const categories = useSelector((state: RootState) => state.categories.items);
   const transactions = useSelector(
@@ -31,11 +31,18 @@ export default function Budget() {
   }, [dispatch, currentMonth]);
 
   const expenseCategories = useMemo(
-    () => categories.filter((cat) => cat.type === "EXPENSE"),
+    () =>
+      Array.isArray(categories)
+        ? categories.filter((cat) => cat.type === "EXPENSE")
+        : [],
     [categories]
   );
 
   const budgetData = useMemo(() => {
+    if (!Array.isArray(budgets) || !Array.isArray(transactions)) {
+      return [];
+    }
+
     const data = expenseCategories.map((category) => {
       const budget =
         budgets.find(
@@ -63,17 +70,24 @@ export default function Budget() {
 
   const totalBudget = useMemo(
     () =>
-      budgets
-        .filter((b) => b.month === currentMonth)
-        .reduce((sum, b) => sum + b.amount, 0),
+      Array.isArray(budgets)
+        ? budgets
+            .filter((b: Budget) => b.month === currentMonth)
+            .reduce((sum: number, b: Budget) => sum + b.amount, 0)
+        : 0,
     [budgets, currentMonth]
   );
 
   const totalExpenses = useMemo(
     () =>
-      transactions
-        .filter((t) => t.type === "EXPENSE" && t.date.startsWith(currentMonth))
-        .reduce((sum, t) => sum + t.amount, 0),
+      Array.isArray(transactions)
+        ? transactions
+            .filter(
+              (t: Transaction) =>
+                t.type === "EXPENSE" && t.date.startsWith(currentMonth)
+            )
+            .reduce((sum: number, t: Transaction) => sum + t.amount, 0)
+        : 0,
     [transactions, currentMonth]
   );
 
@@ -120,6 +134,16 @@ export default function Budget() {
     setBudgetAmount(budget?.amount.toString() || "");
     setIsModalOpen(true);
   };
+
+  if (!Array.isArray(categories) || categories.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

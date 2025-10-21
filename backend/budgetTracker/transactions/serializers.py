@@ -5,10 +5,16 @@ from decimal import Decimal
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for User model"""
+    password = serializers.CharField(write_only=True, required=True)
+    
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'password', 'first_name', 'last_name']
         read_only_fields = ['id']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'email': {'required': True}
+        }
 
 
 class CategorySerializer(serializers.ModelSerializer):

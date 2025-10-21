@@ -5,7 +5,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q
 from django.utils import timezone
-from datetime import datetime, date
+from django.core.cache import cache
+from datetime import datetime, date, timedelta
 from decimal import Decimal
 
 from .models import Category, Transaction, Budget
@@ -88,7 +89,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
         """Return transactions for current user with custom filtering"""
         queryset = Transaction.objects.filter(
             user=self.request.user
-        ).select_related('category', 'user')
+        ).select_related('category', 'user').order_by('-date', '-created_at')
         
         # Manual filtering from query parameters
         transaction_type = self.request.query_params.get('type', None)
@@ -134,23 +135,43 @@ class TransactionViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def summary(self, request):
         """Get transaction summary statistics"""
+        user_id = request.user.id
+        cache_key = f'transaction_summary_{user_id}'
+        
+        # Try to get cached data
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return Response(cached_data)
+            
         queryset = self.get_queryset()
         
-        # Total income and expenses
-        income_total = queryset.filter(type='INCOME').aggregate(
+        # Get all totals in a single query
+        totals = queryset.values('type').annotate(
             total=Sum('amount')
-        )['total'] or Decimal('0.00')
+        ).order_by('type')
         
-        expense_total = queryset.filter(type='EXPENSE').aggregate(
-            total=Sum('amount')
-        )['total'] or Decimal('0.00')
+        # Initialize values
+        income_total = Decimal('0.00')
+        expense_total = Decimal('0.00')
         
-        return Response({
+        # Process totals
+        for total in totals:
+            if total['type'] == 'INCOME':
+                income_total = total['total'] or Decimal('0.00')
+            elif total['type'] == 'EXPENSE':
+                expense_total = total['total'] or Decimal('0.00')
+        
+        response_data = {
             'total_income': income_total,
             'total_expenses': expense_total,
             'balance': income_total - expense_total,
             'transaction_count': queryset.count()
-        })
+        }
+        
+        # Cache the results for 5 minutes
+        cache.set(cache_key, response_data, 300)
+        
+        return Response(response_data)
     
     @action(detail=False, methods=['get'])
     def by_category(self, request):
@@ -244,8 +265,12 @@ def dashboard_view(request):
     today = date.today()
     current_month = date(today.year, today.month, 1)
     
-    # All transactions
-    all_transactions = Transaction.objects.filter(user=user)
+    # All transactions with optimized querying
+    all_transactions = (
+        Transaction.objects.filter(user=user)
+        .select_related('category')
+        .only('id', 'amount', 'type', 'date', 'category__name')
+    )
     
     # Current month transactions
     month_transactions = all_transactions.filter(
@@ -253,47 +278,76 @@ def dashboard_view(request):
         date__month=today.month
     )
     
-    # Calculate totals
-    total_income = all_transactions.filter(type='INCOME').aggregate(
+    # Calculate totals with a single query for all transactions
+    transaction_totals = all_transactions.values('type').annotate(
         total=Sum('amount')
-    )['total'] or Decimal('0.00')
+    ).order_by('type')
     
-    total_expenses = all_transactions.filter(type='EXPENSE').aggregate(
+    # Calculate monthly totals with a single query
+    monthly_totals = month_transactions.values('type').annotate(
         total=Sum('amount')
-    )['total'] or Decimal('0.00')
+    ).order_by('type')
     
-    monthly_income = month_transactions.filter(type='INCOME').aggregate(
-        total=Sum('amount')
-    )['total'] or Decimal('0.00')
+    # Initialize values
+    total_income = Decimal('0.00')
+    total_expenses = Decimal('0.00')
+    monthly_income = Decimal('0.00')
+    monthly_expenses = Decimal('0.00')
     
-    monthly_expenses = month_transactions.filter(type='EXPENSE').aggregate(
-        total=Sum('amount')
-    )['total'] or Decimal('0.00')
+    # Process totals
+    for total in transaction_totals:
+        if total['type'] == 'INCOME':
+            total_income = total['total'] or Decimal('0.00')
+        elif total['type'] == 'EXPENSE':
+            total_expenses = total['total'] or Decimal('0.00')
+            
+    for total in monthly_totals:
+        if total['type'] == 'INCOME':
+            monthly_income = total['total'] or Decimal('0.00')
+        elif total['type'] == 'EXPENSE':
+            monthly_expenses = total['total'] or Decimal('0.00')
     
-    # Get category breakdowns
-    income_by_category = list(
-        all_transactions.filter(type='INCOME')
-        .values('category__name')
+    # Get category breakdowns with a single query
+    category_totals = (
+        all_transactions
+        .values('type', 'category__name')
         .annotate(total=Sum('amount'))
-        .order_by('-total')
+        .order_by('type', '-total')
     )
     
-    expenses_by_category = list(
-        all_transactions.filter(type='EXPENSE')
-        .values('category__name')
-        .annotate(total=Sum('amount'))
-        .order_by('-total')
-    )
+    # Separate income and expenses
+    income_by_category = [
+        {'category__name': item['category__name'], 'total': item['total']}
+        for item in category_totals
+        if item['type'] == 'INCOME'
+    ]
     
-    # Get current budget
+    expenses_by_category = [
+        {'category__name': item['category__name'], 'total': item['total']}
+        for item in category_totals
+        if item['type'] == 'EXPENSE'
+    ]
+    
+    # Get current budget with error handling
     current_budget = None
     budget_remaining = None
     try:
-        budget = Budget.objects.get(user=user, month=current_month)
+        budget = Budget.objects.select_related('user').get(
+            user=user,
+            month=current_month
+        )
         current_budget = budget.amount
-        budget_remaining = budget.get_remaining()
+        try:
+            budget_remaining = budget.get_remaining()
+        except Exception as e:
+            # Log the error but don't fail the entire request
+            print(f"Error calculating budget remaining: {str(e)}")
+            budget_remaining = current_budget
     except Budget.DoesNotExist:
         pass
+    except Exception as e:
+        print(f"Error fetching budget: {str(e)}")
+        # Continue with None values for budget fields
     
     # Recent transactions
     recent_transactions = all_transactions.order_by('-date', '-created_at')[:10]

@@ -4,12 +4,14 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from transactions.auth import register_user
 
 urlpatterns = [
     # Admin panel
     path('admin/', admin.site.urls),
     
     # JWT Authentication
+    path('api/auth/register/', register_user, name='register'),
     path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     

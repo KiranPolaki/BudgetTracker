@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "../store";
 import type { RootState } from "../store";
 import {
   fetchTransactions,
@@ -11,8 +12,18 @@ import Modal from "../components/Modal";
 import TransactionForm from "../components/TransactionForm";
 import type { Transaction } from "../types";
 
+import ErrorBoundary from "../components/ErrorBoundary";
+
 export default function Transactions() {
-  const dispatch = useDispatch();
+  return (
+    <ErrorBoundary>
+      <TransactionsContent />
+    </ErrorBoundary>
+  );
+}
+
+function TransactionsContent() {
+  const dispatch = useAppDispatch();
   const {
     items: transactions,
     loading,
@@ -34,8 +45,15 @@ export default function Transactions() {
     useState<Transaction | null>(null);
 
   useEffect(() => {
-    dispatch(fetchTransactions({ page: currentPage, filters }));
     dispatch(fetchCategories());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      dispatch(fetchTransactions({ page: currentPage, filters }));
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(debounceTimeout);
   }, [dispatch, currentPage, filters]);
 
   const handlePageChange = (newPage: number) => {
@@ -96,11 +114,13 @@ export default function Transactions() {
               className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             >
               <option value="">All Categories</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
+              {Array.isArray(categories)
+                ? categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))
+                : null}
             </select>
           </div>
           <div>
@@ -205,7 +225,7 @@ export default function Transactions() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {transactions.map((transaction) => (
+              {transactions.map((transaction: Transaction) => (
                 <tr key={transaction.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(transaction.date).toLocaleDateString()}
@@ -295,7 +315,7 @@ export default function Transactions() {
         title={selectedTransaction ? "Edit Transaction" : "Add Transaction"}
       >
         <TransactionForm
-          transaction={selectedTransaction}
+          transaction={selectedTransaction || undefined}
           onComplete={handleTransactionComplete}
           onCancel={handleModalClose}
         />

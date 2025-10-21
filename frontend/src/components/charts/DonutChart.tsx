@@ -17,10 +17,10 @@ interface DonutChartProps {
 
 export default function DonutChart({
   data,
-  width = 400,
-  height = 400,
-  innerRadius = 80,
-  outerRadius = 150,
+  width = 320,
+  height = 320,
+  innerRadius = 60,
+  outerRadius = 120,
 }: DonutChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -92,8 +92,8 @@ export default function DonutChart({
   }, [data, width, height, innerRadius, outerRadius]);
 
   return (
-    <div className="relative">
-      <svg ref={svgRef} className="w-full h-full"></svg>
+    <div className="relative w-full h-full flex items-center justify-center">
+      <svg ref={svgRef} style={{ minHeight: "320px" }}></svg>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
         <div className="text-2xl font-bold text-gray-700">
           ${data.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}

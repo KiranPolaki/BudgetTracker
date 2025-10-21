@@ -21,6 +21,9 @@ export default function TransactionForm({
 }: TransactionFormProps) {
   const dispatch = useAppDispatch();
   const categories = useSelector((state: RootState) => state.categories.items);
+  const { isSubmitting, submitError } = useSelector(
+    (state: RootState) => state.transactions
+  );
 
   const [formData, setFormData] = useState({
     amount: transaction?.amount.toString() || "",
@@ -35,6 +38,11 @@ export default function TransactionForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!Array.isArray(categories)) {
+      setError("Categories not loaded. Please try again.");
+      return;
+    }
 
     const selectedCategory = categories.find(
       (cat: Category) => cat.id === parseInt(formData.categoryId)
@@ -71,19 +79,25 @@ export default function TransactionForm({
         );
       }
       onComplete();
-    } catch (_err) {
-      setError("Failed to save transaction");
+    } catch (err) {
+      setError(
+        `Failed to save transaction: ${
+          err instanceof Error ? err.message : "Unknown error"
+        }`
+      );
     }
   };
 
-  const filteredCategories = categories.filter(
-    (cat: Category) => cat.type === formData.type
-  );
+  const filteredCategories = Array.isArray(categories)
+    ? categories.filter((cat: Category) => cat.type === formData.type)
+    : [];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded">{error}</div>
+      {(error || submitError) && (
+        <div className="bg-red-50 text-red-700 p-3 rounded">
+          {error || submitError}
+        </div>
       )}
 
       <div className="flex gap-4">
@@ -152,6 +166,7 @@ export default function TransactionForm({
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, categoryId: e.target.value }))
             }
+            disabled={!Array.isArray(categories)}
             className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           >
             <option value="">Select a category</option>
@@ -189,9 +204,40 @@ export default function TransactionForm({
         </button>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          disabled={isSubmitting}
+          className={`px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+            isSubmitting
+              ? "bg-blue-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
-          {transaction ? "Update" : "Add"} Transaction
+          {isSubmitting ? (
+            <span className="inline-flex items-center">
+              <svg
+                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              {transaction ? "Updating..." : "Adding..."}
+            </span>
+          ) : (
+            `${transaction ? "Update" : "Add"} Transaction`
+          )}
         </button>
       </div>
     </form>

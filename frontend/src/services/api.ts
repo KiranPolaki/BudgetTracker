@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { Transaction, Category, Budget } from "../types";
+import type { Transaction, Category, Budget, RegisterData } from "../types";
 
 const API_URL = "http://localhost:8000/api";
 
@@ -13,20 +13,107 @@ const api = axios.create({
 
 // Add auth token to requests if available
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("accessToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
+// Add response interceptor to handle token refresh and error formatting
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Handle token refresh
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (!refreshToken) {
+          throw new Error("Session expired. Please login again.");
+        }
+
+        const response = await axios.post(`${API_URL}/auth/refresh/`, {
+          refresh: refreshToken,
+        });
+
+        const { access } = response.data;
+        localStorage.setItem("accessToken", access);
+        originalRequest.headers.Authorization = `Bearer ${access}`;
+
+        return api(originalRequest);
+      } catch (refreshError) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        window.dispatchEvent(new CustomEvent("auth:logout"));
+        throw new Error("Session expired. Please login again.");
+      }
+    }
+
+    // Format error messages
+    let errorMessage = "An unexpected error occurred";
+
+    if (error.response) {
+      // Server responded with error
+      if (error.response.data.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.response.data.message) {
+        errorMessage = error.response.data.message;
+      } else if (
+        typeof error.response.data === "object" &&
+        Object.keys(error.response.data).length > 0
+      ) {
+        // Handle form validation errors
+        const firstError = Object.entries(error.response.data)[0];
+        errorMessage = `${firstError[0]}: ${firstError[1]}`;
+      } else {
+        errorMessage = `Server error: ${error.response.status}`;
+      }
+    } else if (error.request) {
+      // Request made but no response
+      errorMessage =
+        "No response from server. Please check your internet connection.";
+    } else {
+      // Request setup error
+      errorMessage = error.message;
+    }
+
+    const enhancedError = new Error(errorMessage);
+    enhancedError.response = error.response;
+    enhancedError.request = error.request;
+    return Promise.reject(enhancedError);
+  }
+);
+
 export const authService = {
+  register: async (data: RegisterData) => {
+    const response = await api.post("/auth/register/", data);
+    return response.data;
+  },
+
   login: async (username: string, password: string) => {
     const response = await api.post("/auth/login/", { username, password });
     return response.data;
   },
+
   logout: () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+  },
+
+  refresh: async (refreshToken: string) => {
+    const response = await api.post("/auth/refresh/", {
+      refresh: refreshToken,
+    });
+    return response.data;
+  },
+
+  getProfile: async () => {
+    const response = await api.get("/profile/");
+    return response.data;
   },
 };
 

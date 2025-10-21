@@ -26,11 +26,20 @@ export interface Budget {
   category: Category;
 }
 
+export interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  isInitialized: boolean;
 }
 
 export interface FinancialSummary {

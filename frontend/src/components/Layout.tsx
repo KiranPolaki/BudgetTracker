@@ -1,16 +1,28 @@
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../store/authSlice";
+import { useNavigation } from "../context/NavigationContext";
+import { useState, useEffect } from "react";
+import PageSkeleton from "./PageSkeleton";
 
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { prefetchRoute } = useNavigation();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
   };
+
+  useEffect(() => {
+    setIsNavigating(true);
+    prefetchRoute(location.pathname).finally(() => {
+      setIsNavigating(false);
+    });
+  }, [location.pathname, prefetchRoute]);
 
   const navigation = [
     { name: "Dashboard", path: "/dashboard" },
@@ -61,7 +73,7 @@ export default function Layout() {
       {/* Page Content */}
       <main className="py-10">
         <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          <Outlet />
+          {isNavigating ? <PageSkeleton /> : <Outlet />}
         </div>
       </main>
     </div>
