@@ -8,18 +8,15 @@ from .views import (
     user_profile_view
 )
 
-# Create router for ViewSets
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'transactions', TransactionViewSet, basename='transaction')
 router.register(r'budgets', BudgetViewSet, basename='budget')
 
-# URL patterns
 urlpatterns = [
-    # Router URLs (includes all CRUD operations)
+    # Default
     path('', include(router.urls)),
-    
-    # Custom endpoints
+    # Custom
     path('dashboard/', dashboard_view, name='dashboard'),
     path('profile/', user_profile_view, name='profile'),
 ]

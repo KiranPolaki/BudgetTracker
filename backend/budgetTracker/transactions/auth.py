@@ -16,19 +16,16 @@ def register_user(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         with transaction.atomic():
-            # Create user with provided data
             user = User.objects.create_user(
                 username=serializer.validated_data['username'],
                 email=serializer.validated_data['email'],
-                password=request.data['password'],  # password is not in serializer
+                password=request.data['password'],
                 first_name=serializer.validated_data.get('first_name', ''),
                 last_name=serializer.validated_data.get('last_name', '')
             )
             
-            # Generate tokens
             refresh = RefreshToken.for_user(user)
-            
-            # Create default categories for the new user
+
             from .views import CategoryViewSet
             category_viewset = CategoryViewSet()
             category_viewset.request = request

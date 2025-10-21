@@ -1,12 +1,10 @@
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.contrib.auth.models import User
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Sum, Q
-from django.utils import timezone
 from django.core.cache import cache
-from datetime import datetime, date, timedelta
+from datetime import date
 from decimal import Decimal
 
 from .models import Category, Transaction, Budget
@@ -15,7 +13,6 @@ from .serializers import (
     BudgetSerializer, UserSerializer, DashboardSerializer
 )
 from .permissions import IsOwner
-from .filters import TransactionFilter
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -76,7 +73,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class TransactionViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing transactions
-    Provides full CRUD + filtering
     """
     serializer_class = TransactionSerializer
     permission_classes = [IsAuthenticated, IsOwner]
@@ -91,7 +87,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
             user=self.request.user
         ).select_related('category', 'user').order_by('-date', '-created_at')
         
-        # Manual filtering from query parameters
         transaction_type = self.request.query_params.get('type', None)
         category_id = self.request.query_params.get('category', None)
         date_from = self.request.query_params.get('date_from', None)
@@ -101,7 +96,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
         month = self.request.query_params.get('month', None)
         year = self.request.query_params.get('year', None)
         
-        # Apply filters
         if transaction_type:
             queryset = queryset.filter(type=transaction_type)
         
@@ -138,23 +132,19 @@ class TransactionViewSet(viewsets.ModelViewSet):
         user_id = request.user.id
         cache_key = f'transaction_summary_{user_id}'
         
-        # Try to get cached data
         cached_data = cache.get(cache_key)
         if cached_data:
             return Response(cached_data)
             
         queryset = self.get_queryset()
         
-        # Get all totals in a single query
         totals = queryset.values('type').annotate(
             total=Sum('amount')
         ).order_by('type')
         
-        # Initialize values
         income_total = Decimal('0.00')
         expense_total = Decimal('0.00')
         
-        # Process totals
         for total in totals:
             if total['type'] == 'INCOME':
                 income_total = total['total'] or Decimal('0.00')
@@ -168,7 +158,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
             'transaction_count': queryset.count()
         }
         
-        # Cache the results for 5 minutes
         cache.set(cache_key, response_data, 300)
         
         return Response(response_data)
@@ -265,36 +254,30 @@ def dashboard_view(request):
     today = date.today()
     current_month = date(today.year, today.month, 1)
     
-    # All transactions with optimized querying
     all_transactions = (
         Transaction.objects.filter(user=user)
         .select_related('category')
         .only('id', 'amount', 'type', 'date', 'category__name')
     )
     
-    # Current month transactions
     month_transactions = all_transactions.filter(
         date__year=today.year,
         date__month=today.month
     )
     
-    # Calculate totals with a single query for all transactions
     transaction_totals = all_transactions.values('type').annotate(
         total=Sum('amount')
     ).order_by('type')
     
-    # Calculate monthly totals with a single query
     monthly_totals = month_transactions.values('type').annotate(
         total=Sum('amount')
     ).order_by('type')
     
-    # Initialize values
     total_income = Decimal('0.00')
     total_expenses = Decimal('0.00')
     monthly_income = Decimal('0.00')
     monthly_expenses = Decimal('0.00')
     
-    # Process totals
     for total in transaction_totals:
         if total['type'] == 'INCOME':
             total_income = total['total'] or Decimal('0.00')
@@ -307,7 +290,6 @@ def dashboard_view(request):
         elif total['type'] == 'EXPENSE':
             monthly_expenses = total['total'] or Decimal('0.00')
     
-    # Get category breakdowns with a single query
     category_totals = (
         all_transactions
         .values('type', 'category__name')
@@ -315,7 +297,6 @@ def dashboard_view(request):
         .order_by('type', '-total')
     )
     
-    # Separate income and expenses
     income_by_category = [
         {'category__name': item['category__name'], 'total': item['total']}
         for item in category_totals
@@ -328,7 +309,6 @@ def dashboard_view(request):
         if item['type'] == 'EXPENSE'
     ]
     
-    # Get current budget with error handling
     current_budget = None
     budget_remaining = None
     try:
@@ -340,19 +320,15 @@ def dashboard_view(request):
         try:
             budget_remaining = budget.get_remaining()
         except Exception as e:
-            # Log the error but don't fail the entire request
             print(f"Error calculating budget remaining: {str(e)}")
             budget_remaining = current_budget
     except Budget.DoesNotExist:
         pass
     except Exception as e:
         print(f"Error fetching budget: {str(e)}")
-        # Continue with None values for budget fields
     
-    # Recent transactions
     recent_transactions = all_transactions.order_by('-date', '-created_at')[:10]
     
-    # Prepare response data
     data = {
         'total_income': total_income,
         'total_expenses': total_expenses,
