@@ -1,11 +1,12 @@
 import axios from "axios";
 import type { Transaction, Category, Budget, RegisterData } from "../types";
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Create axios instance with base configuration
 const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

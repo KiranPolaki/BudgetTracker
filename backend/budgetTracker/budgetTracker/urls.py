@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -7,6 +8,8 @@ from rest_framework_simplejwt.views import (
 from transactions.auth import register_user
 
 urlpatterns = [
+    # Root URL redirect to API
+    path('', RedirectView.as_view(url='/api/', permanent=False)),
     # Admin panel
     path('admin/', admin.site.urls),
     
