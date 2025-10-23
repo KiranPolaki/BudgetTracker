@@ -18,5 +18,5 @@ urlpatterns = [
     path('', include(router.urls)),
     # Custom
     path('dashboard/', dashboard_view, name='dashboard'),
-    path('profile/', user_profile_view, name='profile'),
+    path('user/', user_profile_view, name='user-profile'),
 ]
