@@ -146,7 +146,7 @@ const Transactions = () => {
       <FloatingActionButton onClick={openAddModal} label="Add Transaction" />
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
         <h3 className="text-lg font-semibold mb-4">Filters</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <select
@@ -219,7 +219,7 @@ const Transactions = () => {
       </div>
 
       {/* Transactions List */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
         {transactionsLoading ? (
           <SkeletonTable />
         ) : transactions.length === 0 ? (

@@ -61,7 +61,7 @@ const Dashboard = () => {
     }).format(amount || 0);
 
   const StatCard = ({ title, amount, color, icon }) => (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+    <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-gray-600 mb-1">{title}</p>
@@ -121,7 +121,7 @@ const Dashboard = () => {
 
       {/* Monthly Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
           <h3 className="text-sm font-semibold text-gray-600 mb-2">
             This Month Income
           </h3>
@@ -129,7 +129,7 @@ const Dashboard = () => {
             {formatCurrency(dashboard.monthly_income)}
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
           <h3 className="text-sm font-semibold text-gray-600 mb-2">
             This Month Expenses
           </h3>
@@ -137,7 +137,7 @@ const Dashboard = () => {
             {formatCurrency(dashboard.monthly_expenses)}
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
           <h3 className="text-sm font-semibold text-gray-600 mb-2">
             Budget Remaining
           </h3>
@@ -155,7 +155,7 @@ const Dashboard = () => {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
           {dashboard.income_by_category?.length > 0 ? (
             <PieChart
               data={dashboard.income_by_category}
@@ -172,7 +172,7 @@ const Dashboard = () => {
           )}
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
           {dashboard.expenses_by_category?.length > 0 ? (
             <PieChart
               data={dashboard.expenses_by_category}
@@ -191,7 +191,7 @@ const Dashboard = () => {
       </div>
 
       {/* Bar Chart */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
         {dashboard.expenses_by_category?.length > 0 ? (
           <BarChart
             data={dashboard.expenses_by_category}
@@ -208,7 +208,7 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Transactions */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+      <div className="bg-white rounded-md shadow-sm border border-gray-100">
         <div className="p-6 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">
             Recent Transactions

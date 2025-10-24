@@ -88,7 +88,7 @@ const Budget = () => {
       </div>
 
       {/* Set Budget Form */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm p-6 border border-blue-100">
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-md shadow-sm p-6 border border-blue-100">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center">
             <span className="text-xl">💰</span>
@@ -148,21 +148,21 @@ const Budget = () => {
       {dashboard && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
               <p className="text-sm text-gray-600 mb-2">Monthly Budget</p>
               <p className="text-3xl font-bold text-blue-600">
                 {formatCurrency(dashboard.current_month_budget)}
               </p>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
               <p className="text-sm text-gray-600 mb-2">Spent This Month</p>
               <p className="text-3xl font-bold text-red-600">
                 {formatCurrency(dashboard.monthly_expenses)}
               </p>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
               <p className="text-sm text-gray-600 mb-2">Remaining</p>
               <p
                 className={`text-3xl font-bold ${
@@ -177,7 +177,7 @@ const Budget = () => {
           </div>
 
           {/* Budget Progress */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Budget Progress</h3>
               <span className={`text-sm font-semibold ${getStatusColor()}`}>
@@ -225,7 +225,7 @@ const Budget = () => {
           </div>
 
           {/* Expense Breakdown */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
                 <span className="text-2xl">📋</span>

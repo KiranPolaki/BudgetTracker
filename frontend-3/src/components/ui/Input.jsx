@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const Input = ({
   id,
@@ -10,21 +10,34 @@ const Input = ({
   required = false,
   ...props
 }) => {
-  const styles =
-    "relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm";
+  const [touched, setTouched] = useState(false);
+  const isError = required && touched && !value;
+
+  const baseStyles =
+    "block w-full rounded-md px-3 py-2 sm:text-sm bg-zinc-900 text-white placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0";
+
+  const normalStyles =
+    "border border-zinc-700 focus:border-white focus:ring-white";
+  const errorStyles =
+    "border border-red-500 focus:border-red-500 focus:ring-red-500";
 
   return (
-    <input
-      id={id}
-      name={name}
-      type={type}
-      required={required}
-      className={styles}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      {...props}
-    />
+    <div className="flex flex-col">
+      <input
+        id={id}
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        onBlur={() => setTouched(true)}
+        placeholder={placeholder}
+        className={`${baseStyles} ${isError ? errorStyles : normalStyles}`}
+        {...props}
+      />
+      {/* {isError && (
+        <span className="text-red-500 text-xs mt-1 ml-1">Required</span>
+      )} */}
+    </div>
   );
 };
 

@@ -1,5 +1,5 @@
 export const SkeletonCard = () => (
-  <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 animate-pulse">
+  <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100 animate-pulse">
     <div className="flex items-center justify-between">
       <div className="flex-1">
         <div className="h-4 bg-gray-200 rounded w-1/4 mb-3"></div>
@@ -11,7 +11,7 @@ export const SkeletonCard = () => (
 );
 
 export const SkeletonTable = () => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead className="bg-gray-50 border-b border-gray-200">
@@ -40,7 +40,7 @@ export const SkeletonTable = () => (
 );
 
 export const SkeletonChart = () => (
-  <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+  <div className="bg-white rounded-md shadow-sm p-6 border border-gray-100">
     <div className="flex flex-col items-center">
       <div className="h-6 bg-gray-200 rounded w-1/3 mb-8 animate-pulse"></div>
       <div className="w-64 h-64 bg-gray-200 rounded-full animate-pulse"></div>
@@ -49,7 +49,7 @@ export const SkeletonChart = () => (
 );
 
 export const SkeletonList = ({ rows = 3 }) => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+  <div className="bg-white rounded-md shadow-sm border border-gray-100">
     <div className="p-6 border-b border-gray-100">
       <div className="h-6 bg-gray-200 rounded w-1/4 animate-pulse"></div>
     </div>
