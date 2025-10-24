@@ -327,7 +327,7 @@ def dashboard_view(request):
     except Exception as e:
         print(f"Error fetching budget: {str(e)}")
     
-    recent_transactions = all_transactions.order_by('-date', '-created_at')[:10]
+    recent_transactions = all_transactions.order_by('-date', '-created_at')[:5]
     
     data = {
         'total_income': total_income,
@@ -339,10 +339,7 @@ def dashboard_view(request):
         'budget_remaining': budget_remaining,
         'income_by_category': income_by_category,
         'expenses_by_category': expenses_by_category,
-        'recent_transactions': TransactionSerializer(
-            recent_transactions, 
-            many=True
-        ).data
+        'recent_transactions': recent_transactions
     }
     
     serializer = DashboardSerializer(data)
