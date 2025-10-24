@@ -26,20 +26,20 @@ const TransactionsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen p-6 text-zinc-100 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Transactions</h1>
+        <h1 className="text-2xl font-semibold">Transactions</h1>
         <Button onClick={handleNewTransaction}>Add Transaction</Button>
       </div>
 
       <TransactionFilters onFilterChange={setFilters} />
 
       {isLoading ? (
-        <div className="flex justify-center">
+        <div className="flex justify-center py-10">
           <Spinner />
         </div>
       ) : isError ? (
-        <p className="text-red-500">Failed to load transactions.</p>
+        <p className="text-red-400 text-center">Failed to load transactions.</p>
       ) : (
         <>
           <TransactionList transactions={data?.results || []} />

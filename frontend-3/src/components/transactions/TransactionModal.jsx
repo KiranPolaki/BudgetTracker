@@ -73,7 +73,8 @@ const TransactionModal = () => {
         <select
           name="type"
           value={formData.type}
-          onChange={handleChange} /* ... */
+          onChange={handleChange}
+          className="w-full rounded-md bg-zinc-900 border border-zinc-700 text-zinc-100 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="EXPENSE">Expense</option>
           <option value="INCOME">Income</option>
@@ -84,16 +85,16 @@ const TransactionModal = () => {
           value={formData.category}
           onChange={handleChange}
           required
+          className="w-full rounded-md bg-zinc-900 border border-zinc-700 text-zinc-100 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="">Select a category</option>
-          {/* Use the filtered list here */}
           {filteredCategories?.map((cat) => (
             <option key={cat.id} value={cat.id}>
               {cat.name}
             </option>
           ))}
         </select>
-        {/* Form fields for amount, description, date, type, category dropdown */}
+
         <Input
           name="amount"
           type="number"
@@ -102,8 +103,25 @@ const TransactionModal = () => {
           placeholder="Amount"
           required
         />
-        {/* ... other fields */}
-        <div className="flex justify-end gap-2">
+
+        <Input
+          name="description"
+          type="text"
+          value={formData.description}
+          onChange={handleChange}
+          placeholder="Description"
+          required
+        />
+
+        <Input
+          name="date"
+          type="date"
+          value={formData.date}
+          onChange={handleChange}
+          required
+        />
+
+        <div className="flex justify-end gap-2 mt-4">
           <Button type="button" variant="secondary" onClick={closeModal}>
             Cancel
           </Button>

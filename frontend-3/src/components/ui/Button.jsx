@@ -22,6 +22,9 @@ const Button = ({
     outline: `bg-black ${
       textColor || "text-white"
     } border border-white hover:bg-white hover:text-black focus:ring-white`,
+    destructive: `bg-rose-600 ${
+      textColor || "text-white"
+    } border border-rose-500 hover:bg-rose-500 focus:ring-rose-400`,
   };
 
   const disabledStyles = "disabled:opacity-50 disabled:cursor-not-allowed";

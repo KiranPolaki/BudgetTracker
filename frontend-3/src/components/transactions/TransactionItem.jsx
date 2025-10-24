@@ -3,28 +3,24 @@ import { formatCurrency, formatDate } from "../../lib/utils";
 
 const TransactionItem = ({ transaction }) => {
   const isIncome = transaction.type === "INCOME";
-  const amountColor = isIncome ? "text-green-600" : "text-red-600";
+  const amountColor = isIncome ? "text-emerald-400" : "text-rose-400";
   const amountSign = isIncome ? "+" : "-";
 
   return (
-    <li className="py-4">
-      <div className="flex items-center space-x-4">
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">
-            {transaction.description}
-          </p>
-          <p className="text-sm text-gray-500 truncate">
-            {transaction.category_name} ・ {formatDate(transaction.date)}
-          </p>
-        </div>
-        <div>
-          <p className={`text-sm font-semibold ${amountColor}`}>
-            {amountSign}
-            {formatCurrency(transaction.amount)}
-          </p>
-        </div>
+    <div className="flex items-center justify-between w-full">
+      <div>
+        <p className="text-sm font-medium text-zinc-100">
+          {transaction.description}
+        </p>
+        <p className="text-xs text-zinc-500">
+          {transaction.category_name} • {formatDate(transaction.date)}
+        </p>
       </div>
-    </li>
+      <p className={`text-sm font-semibold ${amountColor}`}>
+        {amountSign}
+        {formatCurrency(transaction.amount)}
+      </p>
+    </div>
   );
 };
 

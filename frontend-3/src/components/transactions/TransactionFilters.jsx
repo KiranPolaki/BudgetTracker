@@ -4,13 +4,6 @@ import { getCategories } from "../../api/category";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
 
-// Helper function to create the API file if it doesn't exist
-// You should create this file: src/api/category.js
-// export const getCategories = async () => {
-//   const { data } = await apiClient.get('/categories/')
-//   return data
-// }
-
 const TransactionFilters = ({ onFilterChange }) => {
   const [filters, setFilters] = useState({
     type: "",
@@ -29,29 +22,35 @@ const TransactionFilters = ({ onFilterChange }) => {
   useEffect(() => {
     const handler = setTimeout(() => {
       const activeFilters = Object.fromEntries(
-        Object.entries(filters).filter(([, value]) => value !== "")
+        Object.entries(filters).filter(([, v]) => v !== "")
       );
       onFilterChange(activeFilters);
-    }, 500);
+    }, 400);
     return () => clearTimeout(handler);
   }, [filters, onFilterChange]);
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFilters({ ...filters, [e.target.name]: e.target.value });
-  };
 
   const handleReset = () => {
-    setFilters({ type: "", category: "", date_from: "", date_to: "" });
+    setFilters({
+      type: "",
+      category: "",
+      date_from: "",
+      date_to: "",
+      amount_min: "",
+      amount_max: "",
+    });
     onFilterChange({});
   };
 
   return (
-    <div className="grid grid-cols-1 gap-4 rounded-lg bg-white p-4 shadow sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 bg-zinc-900 border border-zinc-800 rounded-xl p-4">
       <select
         name="type"
         value={filters.type}
         onChange={handleChange}
-        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        className="rounded-md bg-zinc-900 border border-zinc-700 text-zinc-100 text-sm p-2 focus:ring-blue-500"
       >
         <option value="">All Types</option>
         <option value="INCOME">Income</option>
@@ -62,7 +61,7 @@ const TransactionFilters = ({ onFilterChange }) => {
         name="category"
         value={filters.category}
         onChange={handleChange}
-        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        className="rounded-md bg-zinc-900 border border-zinc-700 text-zinc-100 text-sm p-2 focus:ring-blue-500"
       >
         <option value="">All Categories</option>
         {categories?.results?.map((cat) => (
@@ -72,21 +71,18 @@ const TransactionFilters = ({ onFilterChange }) => {
         ))}
       </select>
 
-      <Input
+      {/* <Input
         type="date"
         name="date_from"
         value={filters.date_from}
         onChange={handleChange}
-        placeholder="Date From"
       />
       <Input
         type="date"
         name="date_to"
         value={filters.date_to}
         onChange={handleChange}
-        placeholder="Date To"
-      />
-
+      /> */}
       <Input
         type="number"
         name="amount_min"
@@ -102,7 +98,7 @@ const TransactionFilters = ({ onFilterChange }) => {
         placeholder="Max Amount"
       />
 
-      <Button onClick={handleReset} variant="secondary">
+      <Button variant="secondary" onClick={handleReset}>
         Reset
       </Button>
     </div>

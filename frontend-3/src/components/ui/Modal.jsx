@@ -4,21 +4,21 @@ import { createPortal } from "react-dom";
 const Modal = ({ children, title, onClose }) => {
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+        className="relative w-full max-w-md rounded-xl bg-zinc-900 border border-zinc-800 p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between">
-          <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-zinc-100">{title}</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-zinc-500 hover:text-zinc-300 transition"
           >
             <svg
-              className="h-6 w-6"
+              className="h-5 w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
