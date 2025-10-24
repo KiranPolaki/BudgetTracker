@@ -6,6 +6,7 @@ import { useAuthStore } from "../store/authStore";
 import { loginUser, fetchUserProfile } from "../api/auth";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
+import { ArrowLeftIcon } from "lucide-react";
 
 const LoginPage = () => {
   const [step, setStep] = useState(1);
@@ -53,7 +54,7 @@ const LoginPage = () => {
           <img src="/budget.svg" alt="Logo" className="w-12 h-12"></img>
         </div>
         <div className="">
-          <div className="flex flex-col items-center space-y-1.5 px-6 my-4">
+          <div className="flex flex-col items-center space-y-1.5 px-6 py-4">
             <h2 className="text-2xl font-semibold text-white">
               {step === 1 ? "Sign in to your account" : "Enter your password"}
             </h2>
@@ -109,24 +110,23 @@ const LoginPage = () => {
                     autoFocus
                   />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full">
+                  <Button type="submit" disabled={mutation.isLoading} fullWidth>
+                    {mutation.isLoading ? "Signing in..." : "Sign in"}
+                  </Button>
+                </div>
+                <div className="flex items-center justify-center">
                   <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => {
                       setStep(1);
                       setPassword("");
                     }}
-                    variant="outline"
-                    className="flex-1"
+                    className=" flex gap-4"
                   >
-                    Back
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={mutation.isLoading}
-                    className="flex-1"
-                  >
-                    {mutation.isLoading ? "Signing in..." : "Sign in"}
+                    <ArrowLeftIcon className="w-5 h-5 stroke-white/70" />
+                    <span className="text-white/70">Go Back</span>
                   </Button>
                 </div>
               </form>
