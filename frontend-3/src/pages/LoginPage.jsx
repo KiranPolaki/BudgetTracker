@@ -58,14 +58,14 @@ const LoginPage = () => {
             <h2 className="text-2xl font-semibold text-white">
               {step === 1 ? "Sign in to your account" : "Enter your password"}
             </h2>
-            {/* <p className="text-sm text-gray-400 text-center">
+            <p className="text-sm text-gray-400 text-center">
               {step === 1
                 ? "Enter your username to continue"
                 : `Welcome back, ${username}`}
-            </p> */}
+            </p>
           </div>
 
-          <div className="px-6 pb-6">
+          <div className="px-6 pb-6 transition-all duration-300 ease-in-out">
             {step === 1 ? (
               <form onSubmit={handleUsernameSubmit} className="space-y-4">
                 <div className="space-y-2">
@@ -80,7 +80,7 @@ const LoginPage = () => {
                     name="username"
                     type="text"
                     required
-                    placeholder="Enter your username"
+                    placeholder="admin"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     autoFocus
@@ -89,6 +89,7 @@ const LoginPage = () => {
                 <Button type="submit" fullWidth>
                   Continue
                 </Button>
+                <div className="h-12 opacity-0 pointer-events-none"></div>
               </form>
             ) : (
               <form onSubmit={handlePasswordSubmit} className="space-y-4">
@@ -115,7 +116,7 @@ const LoginPage = () => {
                     {mutation.isLoading ? "Signing in..." : "Sign in"}
                   </Button>
                 </div>
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center animate-in fade-in slide-in-from-bottom-2 duration-300">
                   <Button
                     type="button"
                     variant="ghost"
@@ -123,7 +124,7 @@ const LoginPage = () => {
                       setStep(1);
                       setPassword("");
                     }}
-                    className=" flex gap-4"
+                    className="flex gap-2"
                   >
                     <ArrowLeftIcon className="w-5 h-5 stroke-white/70" />
                     <span className="text-white/70">Go Back</span>
