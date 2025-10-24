@@ -8,6 +8,7 @@ import Spinner from "../components/ui/Spinner";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import { formatCurrency } from "../lib/utils";
+import { Landmark, DollarSign, Pocket } from "lucide-react";
 
 const BudgetGaugeChart = lazy(() =>
   import("../components/charts/BudgetGaugeChart")
@@ -52,12 +53,19 @@ const BudgetPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Monthly Budget</h1>
+    <div className="min-h-screen bg-black text-white p-6 space-y-6">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Card>
-          <h2 className="text-lg font-medium">Set Your Budget</h2>
-          <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        <Card className="bg-zinc-900 border border-zinc-700 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold text-gray-100">
+              Set Your Budget
+            </h2>
+            <p className="text-sm text-gray-400 mt-1">
+              Enter your monthly budget to track expenses and savings.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               type="number"
               value={budgetAmount}
@@ -66,32 +74,81 @@ const BudgetPage = () => {
               step="0.01"
               required
             />
-            <Button type="submit" disabled={mutation.isLoading}>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={mutation.isLoading}
+              fullWidth
+              className="py-2 transition-transform hover:scale-105"
+            >
               {mutation.isLoading ? "Saving..." : "Set Budget"}
             </Button>
           </form>
+
+          <div className="mt-6 border-t border-zinc-700 pt-4 space-y-3">
+            <div className="flex items-center justify-between text-gray-300">
+              <div className="flex items-center gap-2">
+                <Landmark className="w-5 h-5 text-gray-400" />
+                <span>Budget</span>
+              </div>
+              <span className="font-medium text-gray-100">
+                {formatCurrency(budget?.amount)}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-gray-300">
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-red-400" />
+                <span>Spent</span>
+              </div>
+              <span className="font-medium text-red-400">
+                {formatCurrency(dashboard?.monthly_expenses)}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-gray-300">
+              <div className="flex items-center gap-2">
+                <Pocket className="w-5 h-5 text-green-400" />
+                <span>Remaining</span>
+              </div>
+              <span
+                className={`font-medium ${
+                  dashboard?.budget_remaining < 0
+                    ? "text-red-500"
+                    : "text-green-400"
+                }`}
+              >
+                {formatCurrency(dashboard?.budget_remaining)}
+              </span>
+            </div>
+          </div>
         </Card>
 
-        <Card>
-          <h2 className="text-lg font-medium">Budget Overview</h2>
-          {isLoading ? (
-            <Spinner />
-          ) : (
-            <div className="mt-4 space-y-2">
-              <p>Budget: {formatCurrency(budget?.amount)}</p>
-              <p>Spent: {formatCurrency(dashboard?.monthly_expenses)}</p>
-              <p>Remaining: {formatCurrency(dashboard?.budget_remaining)}</p>
+        <Card className="bg-zinc-900 border border-zinc-700 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
+          <div className="mb-4">
+            <h2 className="text-2xl font-semibold text-gray-100">
+              Budget Overview
+            </h2>
+            <p className="text-sm text-gray-400 mt-1">
+              Visual representation of your monthly budget vs expenses
+            </p>
+          </div>
+
+          <div className="flex-1 flex items-center justify-center">
+            {isLoading ? (
+              <Spinner className="w-16 h-16" />
+            ) : (
               <Suspense
                 fallback={
-                  <div className="flex h-40 items-center justify-center">
-                    <Spinner />
+                  <div className="flex items-center justify-center w-full h-full">
+                    <Spinner className="w-16 h-16" />
                   </div>
                 }
               >
                 <BudgetGaugeChart data={chartData} />
               </Suspense>
-            </div>
-          )}
+            )}
+          </div>
         </Card>
       </div>
     </div>
