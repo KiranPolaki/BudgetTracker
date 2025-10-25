@@ -5,22 +5,32 @@ import Spinner from "../components/ui/Spinner";
 import { formatCurrency } from "../lib/utils";
 import TransactionItem from "../components/transactions/TransactionItem";
 import { getDashboardData } from "../api/transactions";
+import {
+  ArrowUpCircle,
+  ArrowDownCircle,
+  Wallet,
+  DollarSign,
+} from "lucide-react";
 
 const ExpensesDonutChart = lazy(() =>
   import("../components/charts/ExpensesDonutChart")
 );
 
-const SummaryCard = ({ title, value, color }) => (
-  <Card>
-    <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-    <p className={`mt-1 text-3xl font-semibold ${color}`}>
-      {formatCurrency(value)}
-    </p>
+const SummaryCard = ({ title, value, icon: Icon, color }) => (
+  <Card className="bg-zinc-900 text-zinc-100 border border-zinc-800 p-4 flex items-center gap-4 h-full rounded-lg shadow-sm">
+    <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-zinc-800">
+      <Icon className={`w-6 h-6 ${color}`} />
+    </div>
+    <div>
+      <p className="text-sm text-zinc-400">{title}</p>
+      <p className={`mt-1 text-2xl font-semibold ${color}`}>
+        {formatCurrency(value)}
+      </p>
+    </div>
   </Card>
 );
 
 const DashboardPage = () => {
-  // Use a single query to fetch all dashboard data at once
   const {
     data: dashboardData,
     isLoading,
@@ -30,31 +40,24 @@ const DashboardPage = () => {
     queryFn: getDashboardData,
   });
 
-  if (isLoading) {
+  if (isLoading)
     return (
       <div className="flex justify-center mt-10">
         <Spinner />
       </div>
     );
-  }
-
-  if (isError) {
+  if (isError)
     return (
-      <div className="text-center text-red-500">
+      <p className="text-center text-red-500 mt-10">
         Failed to load dashboard data.
-      </div>
+      </p>
     );
-  }
 
-  // Destructure data directly from the dashboardData object
   const monthly_income = dashboardData?.monthly_income || 0;
   const monthly_expenses = dashboardData?.monthly_expenses || 0;
   const balance = dashboardData?.balance || 0;
-  // The backend already calculates the remaining budget, which is more reliable!
   const budget_remaining = dashboardData?.budget_remaining || 0;
   const recent_transactions = dashboardData?.recent_transactions || [];
-
-  // Prepare chart data from the API response
   const chartData =
     dashboardData?.expenses_by_category?.map((item) => ({
       label: item.category__name,
@@ -62,63 +65,75 @@ const DashboardPage = () => {
     })) || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-12">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <SummaryCard
           title="Monthly Income"
           value={monthly_income}
-          color="text-green-600"
+          icon={ArrowUpCircle}
+          color="text-emerald-400"
         />
         <SummaryCard
           title="Monthly Expenses"
           value={monthly_expenses}
-          color="text-red-600"
+          icon={ArrowDownCircle}
+          color="text-rose-400"
         />
-        <SummaryCard title="Balance" value={balance} color="text-indigo-600" />
+        <SummaryCard
+          title="Balance"
+          value={balance}
+          icon={Wallet}
+          color="text-indigo-400"
+        />
         <SummaryCard
           title="Budget Remaining"
-          value={budget_remaining} // Use the backend-calculated value
-          color={budget_remaining >= 0 ? "text-blue-600" : "text-red-600"}
+          value={budget_remaining}
+          icon={DollarSign}
+          color={budget_remaining >= 0 ? "text-blue-400" : "text-rose-400"}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <h3 className="text-lg font-medium text-gray-900">
+        <Card className="lg:col-span-2 bg-zinc-900 text-zinc-100 border border-zinc-800 p-6 rounded-xl shadow-md">
+          <p className="text-xl font-bold text-zinc-100 mb-5">
             Recent Transactions
-          </h3>
-          <div className="mt-4 flow-root">
-            {recent_transactions.length > 0 ? (
-              <ul role="list" className="-my-5 divide-y divide-gray-200">
+          </p>
+          <div className="overflow-y-auto max-h-80">
+            {recent_transactions.length ? (
+              <ul className="divide-y divide-zinc-700">
                 {recent_transactions.map((tx) => (
                   <TransactionItem key={tx.id} transaction={tx} />
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-500">No recent transactions.</p>
+              <p className="text-zinc-500 py-6 text-center">
+                No recent transactions.
+              </p>
             )}
           </div>
         </Card>
 
-        <Card>
-          <h3 className="text-lg font-medium text-gray-900">
+        <Card className="bg-zinc-900 text-zinc-100 border border-zinc-800 p-6 rounded-xl shadow-md w-full h-full flex flex-col">
+          <p className="text-lg font-semibold text-zinc-100 mb-4">
             Expenses by Category
-          </h3>
-          <Suspense
-            fallback={
-              <div className="flex h-64 items-center justify-center">
-                <Spinner />
-              </div>
-            }
-          >
-            {chartData.length > 0 ? (
-              <ExpensesDonutChart data={chartData} />
-            ) : (
-              <div className="flex h-64 items-center justify-center">
-                <p className="text-gray-500">No expense data for this month.</p>
-              </div>
-            )}
-          </Suspense>
+          </p>
+          <div className="flex-1 w-full flex items-center justify-center">
+            <Suspense
+              fallback={
+                <div className="flex h-64 items-center justify-center">
+                  <Spinner />
+                </div>
+              }
+            >
+              {chartData.length ? (
+                <ExpensesDonutChart data={chartData} />
+              ) : (
+                <p className="text-zinc-400 py-6 text-center">
+                  No expense data for this month.
+                </p>
+              )}
+            </Suspense>
+          </div>
         </Card>
       </div>
     </div>
