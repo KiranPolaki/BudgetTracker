@@ -8,6 +8,7 @@ const LoginPage = lazy(() => import("../pages/LoginPage"));
 const DashboardPage = lazy(() => import("../pages/DashboardPage"));
 const TransactionsPage = lazy(() => import("../pages/TransactionsPage"));
 const BudgetPage = lazy(() => import("../pages/BudgetPage"));
+const CategoriesPage = lazy(() => import("../pages/CategoriesPage"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
 
 const AppRouter = () => {
@@ -31,6 +32,7 @@ const AppRouter = () => {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/budget" element={<BudgetPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

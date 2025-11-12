@@ -46,6 +46,9 @@ const Header = () => {
               <NavLink to="/budget" className={navLinkClass}>
                 Budget
               </NavLink>
+              <NavLink to="/categories" className={navLinkClass}>
+                Categories
+              </NavLink>
             </nav>
             <div className="hidden md:flex items-center space-x-4">
               <span className="text-sm text-gray-300">
@@ -90,6 +93,13 @@ const Header = () => {
               onClick={() => setMenuOpen(false)}
             >
               Budget
+            </NavLink>
+            <NavLink
+              to="/categories"
+              className={navLinkClass}
+              onClick={() => setMenuOpen(false)}
+            >
+              Categories
             </NavLink>
             <div className="flex flex-col space-y-2 mt-6 w-full">
               <Button onClick={handleLogout}>Logout</Button>
