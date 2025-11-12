@@ -167,11 +167,11 @@ SIMPLE_JWT = {
 # CORS settings 
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS', 
-    default='http://localhost:5173,http://127.0.0.1:5173,https://budgettrcker-production.up.railway.app,https://budget-tracker-phi-eight.vercel.app'
+    default='http://localhost:5173,http://127.0.0.1:5173,https://budgettrcker-production.up.railway.app,https://budget-tracker-phi-eight.vercel.app,https://budgettracker-sbwg.onrender.com',
 ).split(',')
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS', 
-    default='http://localhost:5173,http://127.0.0.1:5173,https://budgettrcker-production.up.railway.app,https://budget-tracker-phi-eight.vercel.app'
+    default='http://localhost:5173,http://127.0.0.1:5173,https://budgettrcker-production.up.railway.app,https://budget-tracker-phi-eight.vercel.app,https://budgettracker-sbwg.onrender.com'
 ).split(',')
 
 CORS_ALLOW_CREDENTIALS = True
