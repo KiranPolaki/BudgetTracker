@@ -16,7 +16,14 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # Trust the X-Forwarded-Proto header from Railway (for HTTPS)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,budgettrcker-production.up.railway.app').split(',')
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in config(
+        'ALLOWED_HOSTS',
+        default='localhost,127.0.0.1,.onrender.com'
+    ).split(',')
+    if host.strip()
+]
 
 # Security Settings
 if not DEBUG:
