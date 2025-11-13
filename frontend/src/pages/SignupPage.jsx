@@ -138,13 +138,9 @@ const SignupPage = () => {
                   Continue
                 </Button>
                 <div className="mt-2 flex items-center justify-center">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => navigate("/login")}
-                  >
+                  <a className="text-white" href="/login">
                     Already have an account? Sign in
-                  </Button>
+                  </a>
                 </div>
                 <div className="h-12 opacity-0 pointer-events-none"></div>
               </form>
