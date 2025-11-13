@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "__nextjs_static_files", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
