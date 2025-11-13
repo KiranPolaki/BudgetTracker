@@ -36,9 +36,9 @@ const TransactionModal = () => {
     queryFn: () => getCategories(),
   });
 
-  const filteredCategories = categoriesData?.results?.filter(
-    (cat) => cat.type === formData.type
-  ) || categoriesData?.filter((cat) => cat.type === formData.type);
+  const filteredCategories =
+    categoriesData?.results?.filter((cat) => cat.type === formData.type) ||
+    categoriesData?.filter((cat) => cat.type === formData.type);
 
   const mutation = useMutation({
     mutationFn: editingTransaction
