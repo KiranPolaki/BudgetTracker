@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { useAuthStore } from "../store/authStore";
 import { registerUser } from "../api/auth";
 import Input from "../components/ui/Input";
+import PasswordInput from "../components/ui/PasswordInput";
 import Button from "../components/ui/Button";
 import { ArrowLeftIcon } from "lucide-react";
 
@@ -24,30 +25,28 @@ const SignupPage = () => {
       const user = data?.user;
       if (access) setToken(access);
       if (user) setUser(user);
-      toast.success("Account created — welcome!");
+      toast.success("Account created — you're signed in!");
       navigate("/");
     },
     onError: (err) => {
-      const message = err?.response?.data || "Failed to create account.";
-      toast.error(
-        typeof message === "string" ? message : JSON.stringify(message)
-      );
+      const message = err?.response?.data || "Could not create account. Please try again.";
+      toast.error(typeof message === "string" ? message : JSON.stringify(message));
     },
   });
 
   const handleStep1Submit = (e) => {
     e.preventDefault();
     if (!username) {
-      toast.error("Username is required.");
+      toast.error("Please enter a username.");
       return;
     }
     if (!email) {
-      toast.error("Email is required.");
+      toast.error("Please enter your email.");
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email.");
+      toast.error("Enter a valid email address.");
       return;
     }
     setStep(2);
@@ -56,7 +55,7 @@ const SignupPage = () => {
   const handleStep2Submit = (e) => {
     e.preventDefault();
     if (!password) {
-      toast.error("Password is required.");
+      toast.error("Please enter a password.");
       return;
     }
     if (!confirmPassword) {
@@ -64,11 +63,11 @@ const SignupPage = () => {
       return;
     }
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toast.error("Passwords don't match.");
       return;
     }
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters.");
+      toast.error("Password must be at least 6 characters long.");
       return;
     }
     mutation.mutate({ username, email, password });
@@ -108,6 +107,7 @@ const SignupPage = () => {
                     type="text"
                     required
                     placeholder="Enter username"
+                    maxLength={50}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     autoFocus
@@ -126,6 +126,7 @@ const SignupPage = () => {
                     type="email"
                     required
                     placeholder="Enter email"
+                    maxLength={100}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -153,12 +154,12 @@ const SignupPage = () => {
                   >
                     Password
                   </label>
-                  <Input
+                  <PasswordInput
                     id="password"
                     name="password"
-                    type="password"
                     required
                     placeholder="Enter password"
+                    maxLength={128}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoFocus
@@ -171,12 +172,12 @@ const SignupPage = () => {
                   >
                     Confirm Password
                   </label>
-                  <Input
+                  <PasswordInput
                     id="confirmPassword"
                     name="confirmPassword"
-                    type="password"
                     required
                     placeholder="Confirm password"
+                    maxLength={128}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />

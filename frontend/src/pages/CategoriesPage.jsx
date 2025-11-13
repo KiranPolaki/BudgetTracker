@@ -22,7 +22,7 @@ const CategoriesPage = () => {
 
   const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => getCategories({ ordering: "name" }),
+    queryFn: () => getCategories({ ordering: "-created_at" }),
   });
 
   const categories = useMemo(() => {
@@ -34,23 +34,23 @@ const CategoriesPage = () => {
   const deleteMutation = useMutation({
     mutationFn: (categoryId) => deleteCategory(categoryId),
     onSuccess: () => {
-      toast.success("Category deleted!");
+      toast.success("Category removed.");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardData"] });
       setCategoryToDelete(null);
     },
-    onError: () => toast.error("Failed to delete category."),
+    onError: () => toast.error("Could not remove category. Please try again."),
   });
 
   const defaultsMutation = useMutation({
     mutationFn: createDefaultCategories,
     onSuccess: (response) => {
-      toast.success(response?.message || "Default categories created!");
+      toast.success(response?.message || "Default categories added.");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
-    onError: () => toast.error("Failed to create default categories."),
+    onError: () => toast.error("Could not add default categories. Please try again."),
   });
 
   const handleCreate = () => {

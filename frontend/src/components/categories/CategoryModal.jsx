@@ -34,7 +34,8 @@ const CategoryModal = () => {
       toast.success(
         `Category ${editingCategory ? "updated" : "created"} successfully!`
       );
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["categories"], exact: true });
+      queryClient.refetchQueries({ queryKey: ["categories"], exact: true });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardData"] });
@@ -90,6 +91,7 @@ const CategoryModal = () => {
           value={formData.name}
           onChange={handleChange}
           placeholder="Category name"
+          maxLength={50}
           required
         />
 

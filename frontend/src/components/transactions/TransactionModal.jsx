@@ -57,6 +57,32 @@ const TransactionModal = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!formData.type) {
+      toast.error("Transaction type is required");
+      return;
+    }
+
+    if (!formData.category) {
+      toast.error("Category is required");
+      return;
+    }
+
+    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      toast.error("Amount is required and must be greater than 0");
+      return;
+    }
+
+    if (!formData.description || formData.description.trim() === "") {
+      toast.error("Description is required");
+      return;
+    }
+
+    if (!formData.date) {
+      toast.error("Date is required");
+      return;
+    }
+
     mutation.mutate({ ...formData, category: parseInt(formData.category) });
   };
 
@@ -74,6 +100,7 @@ const TransactionModal = () => {
           name="type"
           value={formData.type}
           onChange={handleChange}
+          required
           className="w-full rounded-md bg-zinc-900 border border-zinc-700 text-zinc-100 p-2 text-sm focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="EXPENSE">Expense</option>
@@ -110,6 +137,7 @@ const TransactionModal = () => {
           value={formData.description}
           onChange={handleChange}
           placeholder="Description"
+          maxLength={200}
           required
         />
 

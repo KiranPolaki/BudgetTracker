@@ -45,39 +45,41 @@ const CategoryGroup = ({ type, categories, onEdit, onDelete }) => {
           No {type === "INCOME" ? "income" : "expense"} categories yet.
         </p>
       ) : (
-        <ul className="divide-y divide-zinc-800">
-          {categories.map((category) => (
-            <li
-              key={category.id}
-              className="flex items-center justify-between px-6 py-4 hover:bg-zinc-800/40 transition"
-            >
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-zinc-100">
-                  {category.name}
-                </span>
-                <span className="text-xs text-zinc-500">
-                  Created {new Date(category.created_at).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="primary"
-                  onClick={() => onEdit(category)}
-                  className="px-4 py-1.5 text-sm"
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => onDelete(category)}
-                  className="px-4 py-1.5 text-sm"
-                >
-                  Delete
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div className="max-h-96 overflow-y-auto">
+          <ul className="divide-y divide-zinc-800">
+            {categories.map((category) => (
+              <li
+                key={category.id}
+                className="flex items-center justify-between px-6 py-4 hover:bg-zinc-800/40 transition"
+              >
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-zinc-100">
+                    {category.name}
+                  </span>
+                  <span className="text-xs text-zinc-500">
+                    Created {new Date(category.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="primary"
+                    onClick={() => onEdit(category)}
+                    className="px-4 py-1.5 text-sm"
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => onDelete(category)}
+                    className="px-4 py-1.5 text-sm"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

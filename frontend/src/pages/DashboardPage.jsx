@@ -12,8 +12,8 @@ import {
   DollarSign,
 } from "lucide-react";
 
-const ExpensesDonutChart = lazy(() =>
-  import("../components/charts/ExpensesDonutChart")
+const ExpensesBarChart = lazy(() =>
+  import("../components/charts/ExpensesBarChart")
 );
 
 const SummaryCard = ({ title, value, icon: Icon, color }) => (
@@ -94,19 +94,23 @@ const DashboardPage = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2 bg-zinc-900 text-zinc-100 border border-zinc-800 p-6 rounded-xl shadow-md">
-          <p className="text-xl font-bold text-zinc-100 mb-5">
-            Recent Transactions
-          </p>
-          <div className="overflow-y-auto max-h-80">
+        <Card className="lg:col-span-2 bg-zinc-900 text-zinc-100 border border-zinc-800 rounded-xl shadow-md flex flex-col h-full">
+          <div className="px-6 py-4 border-b border-zinc-800">
+            <p className="text-xl font-bold text-zinc-100">
+              Recent Transactions
+            </p>
+          </div>
+          <div className="flex-1 overflow-hidden">
             {recent_transactions.length ? (
-              <ul className="divide-y divide-zinc-700">
+              <ul className="divide-y divide-zinc-800 overflow-y-auto h-full">
                 {recent_transactions.map((tx) => (
-                  <TransactionItem key={tx.id} transaction={tx} />
+                  <li key={tx.id} className="px-6 py-4 hover:bg-zinc-800/40 transition">
+                    <TransactionItem transaction={tx} />
+                  </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-zinc-500 py-6 text-center">
+              <p className="text-zinc-500 py-12 text-center h-full flex items-center justify-center">
                 No recent transactions.
               </p>
             )}
@@ -126,7 +130,7 @@ const DashboardPage = () => {
               }
             >
               {chartData.length ? (
-                <ExpensesDonutChart data={chartData} />
+                <ExpensesBarChart data={chartData} />
               ) : (
                 <p className="text-zinc-400 py-6 text-center">
                   No expense data for this month.

@@ -33,11 +33,11 @@ const BudgetPage = () => {
   const mutation = useMutation({
     mutationFn: (amount) => setCurrentBudget({ amount }),
     onSuccess: () => {
-      toast.success("Budget updated!");
+      toast.success("Budget saved.");
       queryClient.invalidateQueries(["currentBudget"]);
       queryClient.invalidateQueries(["dashboard"]);
     },
-    onError: () => toast.error("Failed to update budget."),
+    onError: () => toast.error("Could not save budget. Try again."),
   });
 
   const handleSubmit = (e) => {

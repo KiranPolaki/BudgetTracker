@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 const Input = ({
   id,
@@ -8,9 +9,11 @@ const Input = ({
   onChange,
   placeholder,
   required = false,
+  maxLength,
   ...props
 }) => {
   const [touched, setTouched] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
   const isError = required && touched && !value;
 
   const baseStyles =
@@ -21,6 +24,22 @@ const Input = ({
   const errorStyles =
     "border border-red-500 focus:border-red-500 focus:ring-red-500";
 
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    
+    if (maxLength && newValue.length >= maxLength) {
+      if (!limitReached) {
+        toast.error(`Maximum ${maxLength} characters allowed`);
+        setLimitReached(true);
+      }
+      e.target.value = newValue.slice(0, maxLength);
+      onChange({ ...e, target: { ...e.target, value: newValue.slice(0, maxLength) } });
+    } else {
+      setLimitReached(false);
+      onChange(e);
+    }
+  };
+
   return (
     <div className="flex flex-col">
       <input
@@ -28,9 +47,10 @@ const Input = ({
         name={name}
         type={type}
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
         onBlur={() => setTouched(true)}
         placeholder={placeholder}
+        maxLength={maxLength}
         className={`${baseStyles} ${isError ? errorStyles : normalStyles}`}
         {...props}
       />

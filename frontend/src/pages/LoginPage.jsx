@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { useAuthStore } from "../store/authStore";
 import { loginUser, fetchUserProfile } from "../api/auth";
 import Input from "../components/ui/Input";
+import PasswordInput from "../components/ui/PasswordInput";
 import Button from "../components/ui/Button";
 import { ArrowLeftIcon } from "lucide-react";
 
@@ -21,18 +22,18 @@ const LoginPage = () => {
       setToken(data.access);
       const userProfile = await fetchUserProfile();
       setUser(userProfile);
-      toast.success("Login successful!");
+      toast.success("Signed in — welcome back!");
       navigate("/");
     },
     onError: () => {
-      toast.error("Login failed. Please check your credentials.");
+      toast.error("Sign in failed. Please check your username and password.");
     },
   });
 
   const handleUsernameSubmit = (e) => {
     e.preventDefault();
     if (!username) {
-      toast.error("Username is required.");
+      toast.error("Please enter your username.");
       return;
     }
     setStep(2);
@@ -41,7 +42,7 @@ const LoginPage = () => {
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     if (!password) {
-      toast.error("Password is required.");
+      toast.error("Please enter your password.");
       return;
     }
     mutation.mutate({ username, password });
@@ -81,6 +82,7 @@ const LoginPage = () => {
                     type="text"
                     required
                     placeholder="admin"
+                    maxLength={50}
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     autoFocus
@@ -105,12 +107,12 @@ const LoginPage = () => {
                   >
                     Password
                   </label>
-                  <Input
+                  <PasswordInput
                     id="password"
                     name="password"
-                    type="password"
                     required
                     placeholder="Enter your password"
+                    maxLength={128}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoFocus
