@@ -69,7 +69,7 @@ const TransactionFilters = ({ onFilterChange }) => {
             {cat.name}
           </option>
         ))}
-      />
+      </select>
 
       <Input
         type="number"
