@@ -97,11 +97,7 @@ const ExpensesBarChart = ({ data }) => {
       .attr("class", "grid")
       .attr("transform", `translate(0,${chartHeight})`)
       .call(
-        d3
-          .axisBottom(xScale)
-          .tickSize(-chartHeight)
-          .tickFormat("")
-          .ticks(5)
+        d3.axisBottom(xScale).tickSize(-chartHeight).tickFormat("").ticks(5)
       )
       .style("stroke", "#3f4652")
       .style("stroke-opacity", "0.1")

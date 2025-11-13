@@ -26,14 +26,17 @@ const Input = ({
 
   const handleChange = (e) => {
     const newValue = e.target.value;
-    
+
     if (maxLength && newValue.length >= maxLength) {
       if (!limitReached) {
         toast.error(`Maximum ${maxLength} characters allowed`);
         setLimitReached(true);
       }
       e.target.value = newValue.slice(0, maxLength);
-      onChange({ ...e, target: { ...e.target, value: newValue.slice(0, maxLength) } });
+      onChange({
+        ...e,
+        target: { ...e.target, value: newValue.slice(0, maxLength) },
+      });
     } else {
       setLimitReached(false);
       onChange(e);

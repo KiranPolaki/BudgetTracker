@@ -29,8 +29,11 @@ const SignupPage = () => {
       navigate("/");
     },
     onError: (err) => {
-      const message = err?.response?.data || "Could not create account. Please try again.";
-      toast.error(typeof message === "string" ? message : JSON.stringify(message));
+      const message =
+        err?.response?.data || "Could not create account. Please try again.";
+      toast.error(
+        typeof message === "string" ? message : JSON.stringify(message)
+      );
     },
   });
 

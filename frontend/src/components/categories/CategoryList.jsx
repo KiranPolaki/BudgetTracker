@@ -108,4 +108,3 @@ const CategoryList = ({ categories, onEdit, onDelete }) => {
 };
 
 export default CategoryList;
-

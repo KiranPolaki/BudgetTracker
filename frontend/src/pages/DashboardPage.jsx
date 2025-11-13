@@ -104,7 +104,10 @@ const DashboardPage = () => {
             {recent_transactions.length ? (
               <ul className="divide-y divide-zinc-800 overflow-y-auto h-full">
                 {recent_transactions.map((tx) => (
-                  <li key={tx.id} className="px-6 py-4 hover:bg-zinc-800/40 transition">
+                  <li
+                    key={tx.id}
+                    className="px-6 py-4 hover:bg-zinc-800/40 transition"
+                  >
                     <TransactionItem transaction={tx} />
                   </li>
                 ))}

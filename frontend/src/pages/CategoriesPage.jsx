@@ -50,7 +50,8 @@ const CategoriesPage = () => {
       toast.success(response?.message || "Default categories added.");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
-    onError: () => toast.error("Could not add default categories. Please try again."),
+    onError: () =>
+      toast.error("Could not add default categories. Please try again."),
   });
 
   const handleCreate = () => {
