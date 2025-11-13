@@ -1,43 +1,109 @@
+import logging
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
-from django.db import transaction
+from django.db import transaction as db_transaction
 from .serializers import UserSerializer
+from .models import Category
 from rest_framework_simplejwt.tokens import RefreshToken
+
+logger = logging.getLogger(__name__)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
-    """
-    Register a new user and return tokens
-    """
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid():
-        with transaction.atomic():
+    try:
+        username = request.data.get('username')
+        email = request.data.get('email')
+        
+        if User.objects.filter(username=username).exists():
+            return Response(
+                {'username': 'Username already taken.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if User.objects.filter(email=email).exists():
+            return Response(
+                {'email': 'Email already registered.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        serializer = UserSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            logger.warning(f"Validation failed: {serializer.errors}")
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        with db_transaction.atomic():
             user = User.objects.create_user(
                 username=serializer.validated_data['username'],
                 email=serializer.validated_data['email'],
-                password=request.data['password'],
+                password=serializer.validated_data['password'],
                 first_name=serializer.validated_data.get('first_name', ''),
                 last_name=serializer.validated_data.get('last_name', '')
             )
             
-            refresh = RefreshToken.for_user(user)
-
-            from .views import CategoryViewSet
-            category_viewset = CategoryViewSet()
-            category_viewset.request = request
-            category_viewset.request.user = user
-            category_viewset.create_defaults(request)
+            logger.info(f"User created successfully: {user.username}")
             
-            return Response({
-                'user': serializer.data,
+            default_categories = [
+                {'name': 'Salary', 'type': 'INCOME'},
+                {'name': 'Freelance', 'type': 'INCOME'},
+                {'name': 'Investment', 'type': 'INCOME'},
+                {'name': 'Other Income', 'type': 'INCOME'},
+                {'name': 'Groceries', 'type': 'EXPENSE'},
+                {'name': 'Rent', 'type': 'EXPENSE'},
+                {'name': 'Utilities', 'type': 'EXPENSE'},
+                {'name': 'Transportation', 'type': 'EXPENSE'},
+                {'name': 'Entertainment', 'type': 'EXPENSE'},
+                {'name': 'Healthcare', 'type': 'EXPENSE'},
+                {'name': 'Shopping', 'type': 'EXPENSE'},
+                {'name': 'Other Expense', 'type': 'EXPENSE'},
+            ]
+            
+            for cat_data in default_categories:
+                try:
+                    Category.objects.get_or_create(
+                        user=user,
+                        name=cat_data['name'],
+                        defaults={'type': cat_data['type']}
+                    )
+                except Exception as e:
+                    logger.error(f"Error creating category {cat_data['name']}: {str(e)}")
+            
+            logger.info(f"Default categories created for user: {user.username}")
+            
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+            
+            user_data = {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+            }
+            
+            response_data = {
+                'user': user_data,
                 'tokens': {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
+                    'refresh': refresh_token,
+                    'access': access_token,
                 }
-            }, status=status.HTTP_201_CREATED)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            }
+            
+            logger.info(f"Registration successful for user: {user.username}")
+            
+            return Response(response_data, status=status.HTTP_201_CREATED)
+            
+    except Exception as e:
+        logger.error(f"Unexpected error in register_user: {str(e)}", exc_info=True)
+        return Response(
+            {'error': 'Registration failed. Please try again.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

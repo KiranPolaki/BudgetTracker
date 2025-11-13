@@ -1,19 +1,20 @@
 import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
+import { TrendingUp } from "lucide-react";
 
 const BudgetGaugeChart = ({ data }) => {
   const ref = useRef();
 
   useEffect(() => {
     if (!data || data.budget <= 0) {
-      d3.select(ref.current).select("svg").remove();
+      d3.select(ref.current).selectAll("svg").remove();
       return;
     }
 
     const { budget, spent } = data;
     const percentSpent = Math.min(spent / budget, 1);
 
-    d3.select(ref.current).select("svg").remove();
+    d3.select(ref.current).selectAll("svg").remove();
 
     const containerWidth = ref.current.clientWidth || 280;
     const containerHeight = ref.current.clientHeight || 200;
@@ -82,7 +83,18 @@ const BudgetGaugeChart = ({ data }) => {
       .text("of budget spent");
   }, [data]);
 
-  return <div ref={ref} className="w-full h-52" />;
+  return (
+    <div ref={ref} className="w-full h-52 flex items-center justify-center">
+      {!data || data.budget <= 0 ? (
+        <div className="flex flex-col items-center justify-center h-full">
+          <TrendingUp className="w-12 h-12 text-gray-600 mb-3" />
+          <p className="text-gray-400 text-sm text-center">
+            Set a budget to see your spending progress
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
 };
 
 export default BudgetGaugeChart;

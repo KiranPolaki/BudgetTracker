@@ -69,20 +69,8 @@ const TransactionFilters = ({ onFilterChange }) => {
             {cat.name}
           </option>
         ))}
-      </select>
-
-      {/* <Input
-        type="date"
-        name="date_from"
-        value={filters.date_from}
-        onChange={handleChange}
       />
-      <Input
-        type="date"
-        name="date_to"
-        value={filters.date_to}
-        onChange={handleChange}
-      /> */}
+
       <Input
         type="number"
         name="amount_min"

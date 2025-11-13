@@ -1,8 +1,13 @@
 import apiClient from "./index";
 
 export const getCurrentBudget = async () => {
-  const { data } = await apiClient.get("/budgets/current/");
-  return data;
+  try {
+    const { data } = await apiClient.get("/budgets/current/");
+    return data;
+  } catch (err) {
+    if (err.response && err.response.status === 404) return null;
+    throw err;
+  }
 };
 
 export const setCurrentBudget = async ({ amount }) => {

@@ -33,12 +33,12 @@ const TransactionModal = () => {
 
   const { data: categoriesData } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => getCategories({ paginated: false }),
+    queryFn: () => getCategories(),
   });
 
   const filteredCategories = categoriesData?.results?.filter(
     (cat) => cat.type === formData.type
-  );
+  ) || categoriesData?.filter((cat) => cat.type === formData.type);
 
   const mutation = useMutation({
     mutationFn: editingTransaction
@@ -122,10 +122,19 @@ const TransactionModal = () => {
         />
 
         <div className="flex justify-end gap-2 mt-4">
-          <Button type="button" variant="secondary" onClick={closeModal}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={closeModal}
+            disabled={mutation.isLoading}
+          >
             Cancel
           </Button>
-          <Button type="submit" disabled={mutation.isLoading}>
+          <Button
+            type="submit"
+            loading={mutation.isLoading}
+            disabled={mutation.isLoading}
+          >
             {mutation.isLoading ? "Saving..." : "Save"}
           </Button>
         </div>

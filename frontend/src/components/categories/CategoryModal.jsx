@@ -34,10 +34,10 @@ const CategoryModal = () => {
       toast.success(
         `Category ${editingCategory ? "updated" : "created"} successfully!`
       );
-      queryClient.invalidateQueries(["categories"]);
-      queryClient.invalidateQueries(["transactions"]);
-      queryClient.invalidateQueries(["dashboard"]);
-      queryClient.invalidateQueries(["dashboardData"]);
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardData"] });
       closeModal();
     },
     onError: (error) => {
@@ -72,9 +72,7 @@ const CategoryModal = () => {
               <button
                 type="button"
                 key={type}
-                onClick={() =>
-                  setFormData((prev) => ({ ...prev, type: type }))
-                }
+                onClick={() => setFormData((prev) => ({ ...prev, type: type }))}
                 className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
                   formData.type === type
                     ? "border-blue-500 bg-blue-500/10 text-blue-300"
@@ -104,7 +102,11 @@ const CategoryModal = () => {
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={mutation.isLoading}>
+          <Button
+            type="submit"
+            loading={mutation.isLoading}
+            disabled={mutation.isLoading}
+          >
             {mutation.isLoading ? "Saving..." : "Save"}
           </Button>
         </div>
@@ -114,4 +116,3 @@ const CategoryModal = () => {
 };
 
 export default CategoryModal;
-

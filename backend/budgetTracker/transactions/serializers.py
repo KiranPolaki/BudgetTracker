@@ -4,21 +4,21 @@ from .models import Category, Transaction, Budget
 from decimal import Decimal
 
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer for User model"""
-    password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, required=True, min_length=6)
     
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'password', 'first_name', 'last_name']
         read_only_fields = ['id']
         extra_kwargs = {
-            'password': {'write_only': True},
-            'email': {'required': True}
+            'password': {'write_only': True, 'min_length': 6},
+            'email': {'required': True},
+            'first_name': {'required': False},
+            'last_name': {'required': False},
         }
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    """Serializer for Category model"""
     transaction_count = serializers.SerializerMethodField()
     
     class Meta:
@@ -27,25 +27,29 @@ class CategorySerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
     
     def get_transaction_count(self, obj):
-        """Return count of transactions in this category"""
         return obj.transactions.count()
     
     def validate(self, data):
-        """Validate category data"""
         request = self.context.get('request')
         if request and hasattr(request, 'user'):
             data['user'] = request.user
         return data
     
     def create(self, validated_data):
-        """Create category with current user"""
         request = self.context.get('request')
-        validated_data['user'] = request.user
-        return super().create(validated_data)
+        user = request.user
+        name = validated_data.get('name')
+        cat_type = validated_data.get('type')
+        
+        category, created = Category.objects.get_or_create(
+            user=user,
+            name=name,
+            defaults={'type': cat_type}
+        )
+        return category
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-    """Serializer for Transaction model"""
     category_name = serializers.CharField(source='category.name', read_only=True)
     category_details = CategorySerializer(source='category', read_only=True)
     
@@ -59,20 +63,17 @@ class TransactionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
     
     def validate_amount(self, value):
-        """Ensure amount is positive"""
         if value <= 0:
             raise serializers.ValidationError("Amount must be greater than 0")
         return value
     
     def validate_category(self, value):
-        """Ensure category belongs to current user"""
         request = self.context.get('request')
         if value and value.user != request.user:
             raise serializers.ValidationError("Invalid category")
         return value
     
     def validate(self, data):
-        """Cross-field validation"""
         category = data.get('category')
         transaction_type = data.get('type')
         
@@ -84,14 +85,18 @@ class TransactionSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
-        """Create transaction with current user"""
         request = self.context.get('request')
         validated_data['user'] = request.user
         return super().create(validated_data)
+    
+    def update(self, instance, validated_data):
+        request = self.context.get('request')
+        if request and request.user != instance.user:
+            raise serializers.ValidationError("Unauthorized")
+        return super().update(instance, validated_data)
 
 
 class BudgetSerializer(serializers.ModelSerializer):
-    """Serializer for Budget model"""
     actual_expenses = serializers.SerializerMethodField()
     remaining = serializers.SerializerMethodField()
     percentage_used = serializers.SerializerMethodField()
@@ -106,38 +111,31 @@ class BudgetSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
     
     def get_actual_expenses(self, obj):
-        """Get actual expenses for the month"""
         return float(obj.get_actual_expenses())
     
     def get_remaining(self, obj):
-        """Get remaining budget"""
         return float(obj.get_remaining())
     
     def get_percentage_used(self, obj):
-        """Get percentage of budget used"""
         return round(obj.get_percentage_used(), 2)
     
     def validate_amount(self, value):
-        """Ensure budget amount is positive"""
         if value <= 0:
             raise serializers.ValidationError("Budget amount must be greater than 0")
         return value
     
     def validate_month(self, value):
-        """Ensure month is first day of month"""
         if value.day != 1:
             raise serializers.ValidationError("Month must be the first day of the month")
         return value
     
     def create(self, validated_data):
-        """Create budget with current user"""
         request = self.context.get('request')
         validated_data['user'] = request.user
         return super().create(validated_data)
 
 
 class DashboardSerializer(serializers.Serializer):
-    """Serializer for dashboard summary data"""
     total_income = serializers.DecimalField(max_digits=12, decimal_places=2)
     total_expenses = serializers.DecimalField(max_digits=12, decimal_places=2)
     balance = serializers.DecimalField(max_digits=12, decimal_places=2)

@@ -28,14 +28,12 @@ const ExpensesDonutChart = ({ data }) => {
       .domain(data.map((d) => d.label))
       .range(d3.schemeSet3);
 
-    // Pie generator
     const pie = d3
       .pie()
       .value((d) => d.value)
       .sort(null);
     const data_ready = pie(data);
 
-    // Arc generator
     const arc = d3
       .arc()
       .innerRadius(radius * 0.5)
@@ -65,7 +63,6 @@ const ExpensesDonutChart = ({ data }) => {
         };
       });
 
-    // Polylines
     svg
       .selectAll("polyline")
       .data(data_ready)
@@ -74,14 +71,13 @@ const ExpensesDonutChart = ({ data }) => {
       .style("fill", "none")
       .attr("stroke-width", 1.5)
       .attr("points", (d) => {
-        const posA = arc.centroid(d); // slice center
-        const posB = outerArc.centroid(d); // label start
+        const posA = arc.centroid(d);
+        const posB = outerArc.centroid(d);
         const posC = outerArc.centroid(d);
         posC[0] = radius * 0.95 * (midAngle(d) < Math.PI ? 1 : -1);
         return [posA, posB, posC];
       });
 
-    // Labels
     svg
       .selectAll("text")
       .data(data_ready)
@@ -95,7 +91,7 @@ const ExpensesDonutChart = ({ data }) => {
       .style("text-anchor", (d) => (midAngle(d) < Math.PI ? "start" : "end"))
       .style("font-size", 13)
       .style("font-weight", 500)
-      .style("fill", "#f9fafb"); // light text for dark background
+      .style("fill", "#f9fafb");
 
     function midAngle(d) {
       return d.startAngle + (d.endAngle - d.startAngle) / 2;

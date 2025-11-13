@@ -37,7 +37,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def create_defaults(self, request):
-        """Create default categories for user"""
         default_categories = [
             {'name': 'Salary', 'type': 'INCOME'},
             {'name': 'Freelance', 'type': 'INCOME'},
@@ -58,12 +57,13 @@ class CategoryViewSet(viewsets.ModelViewSet):
             category, created = Category.objects.get_or_create(
                 user=request.user,
                 name=cat_data['name'],
-                type=cat_data['type']
+                defaults={'type': cat_data['type']}
             )
             if created:
                 created_categories.append(category)
         
-        serializer = self.get_serializer(created_categories, many=True)
+        all_categories = Category.objects.filter(user=request.user)
+        serializer = self.get_serializer(all_categories, many=True)
         return Response({
             'message': f'Created {len(created_categories)} default categories',
             'categories': serializer.data

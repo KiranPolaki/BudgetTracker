@@ -22,7 +22,7 @@ const CategoriesPage = () => {
 
   const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => getCategories({ paginated: false, ordering: "name" }),
+    queryFn: () => getCategories({ ordering: "name" }),
   });
 
   const categories = useMemo(() => {
@@ -35,10 +35,10 @@ const CategoriesPage = () => {
     mutationFn: (categoryId) => deleteCategory(categoryId),
     onSuccess: () => {
       toast.success("Category deleted!");
-      queryClient.invalidateQueries(["categories"]);
-      queryClient.invalidateQueries(["transactions"]);
-      queryClient.invalidateQueries(["dashboard"]);
-      queryClient.invalidateQueries(["dashboardData"]);
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardData"] });
       setCategoryToDelete(null);
     },
     onError: () => toast.error("Failed to delete category."),
@@ -48,7 +48,7 @@ const CategoriesPage = () => {
     mutationFn: createDefaultCategories,
     onSuccess: (response) => {
       toast.success(response?.message || "Default categories created!");
-      queryClient.invalidateQueries(["categories"]);
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
     onError: () => toast.error("Failed to create default categories."),
   });

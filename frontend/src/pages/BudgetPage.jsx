@@ -22,7 +22,7 @@ const BudgetPage = () => {
     queryKey: ["currentBudget"],
     queryFn: getCurrentBudget,
     retry: (failureCount, error) => error.response?.status !== 404,
-    onSuccess: (data) => setBudgetAmount(data.amount || ""),
+    onSuccess: (data) => setBudgetAmount(data?.amount || ""),
   });
 
   const { data: dashboard, isLoading: dashboardLoading } = useQuery({
@@ -77,11 +77,11 @@ const BudgetPage = () => {
             <Button
               type="submit"
               variant="primary"
-              disabled={mutation.isLoading}
+              loading={mutation.isLoading}
               fullWidth
               className="py-2 transition-transform hover:scale-105"
             >
-              {mutation.isLoading ? "Saving..." : "Set Budget"}
+              Set Budget
             </Button>
           </form>
 

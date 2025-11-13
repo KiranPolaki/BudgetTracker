@@ -5,6 +5,7 @@ import Layout from "../components/layout/Layout";
 import Spinner from "../components/ui/Spinner";
 
 const LoginPage = lazy(() => import("../pages/LoginPage"));
+const SignupPage = lazy(() => import("../pages/SignupPage"));
 const DashboardPage = lazy(() => import("../pages/DashboardPage"));
 const TransactionsPage = lazy(() => import("../pages/TransactionsPage"));
 const BudgetPage = lazy(() => import("../pages/BudgetPage"));
@@ -22,6 +23,7 @@ const AppRouter = () => {
     >
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route
           element={
             <ProtectedRoute>

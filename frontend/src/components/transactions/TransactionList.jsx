@@ -107,8 +107,12 @@ const TransactionList = ({ transactions }) => {
             <Button variant="secondary" onClick={() => setConfirmDelete(null)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              loading={mutation.isLoading}
+            >
+              {mutation.isLoading ? "Deleting..." : "Delete"}
             </Button>
           </div>
         </Modal>
