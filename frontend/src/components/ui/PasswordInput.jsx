@@ -18,7 +18,7 @@ const PasswordInput = ({
   const isError = required && touched && !value;
 
   const baseStyles =
-    "block w-full rounded-md px-3 py-2 sm:text-sm bg-zinc-900 text-white placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 pr-10";
+    "block w-full rounded-md px-3 py-2 sm:text-sm bg-zinc-900 text-white placeholder-gray-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0 pr-10 min-h-[40px]";
 
   const normalStyles =
     "border border-zinc-700 focus:border-white focus:ring-white";

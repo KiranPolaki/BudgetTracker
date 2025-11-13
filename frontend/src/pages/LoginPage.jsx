@@ -55,7 +55,7 @@ const LoginPage = () => {
           <img src="/budget.svg" alt="Logo" className="w-12 h-12"></img>
         </div>
         <div className="">
-          <div className="flex flex-col items-center space-y-1.5 px-6 py-4">
+          <div className="flex flex-col items-center space-y-1.5 px-6 py-4 min-h-[72px]">
             <h2 className="text-2xl font-semibold text-white">
               {step === 1 ? "Sign in to your account" : "Enter your password"}
             </h2>
@@ -66,7 +66,7 @@ const LoginPage = () => {
             </p>
           </div>
 
-          <div className="px-6 pb-6 transition-all duration-300 ease-in-out">
+          <div className="px-6 pb-6 transition-all duration-300 ease-in-out min-h-[220px] flex flex-col justify-center">
             {step === 1 ? (
               <form onSubmit={handleUsernameSubmit} className="space-y-4">
                 <div className="space-y-2">
